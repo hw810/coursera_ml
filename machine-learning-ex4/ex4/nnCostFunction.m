@@ -62,22 +62,32 @@ Theta2_grad = zeros(size(Theta2));
 %               and Theta2_grad from Part 2.
 %
 
+% forward propagation
+a_1 = [ones(m,1) X];
+z_2 = a_1 * Theta1';
+a_2 = sigmoid(z_2);
+a_2 = [ones(m, 1) a_2];
+z_3 = a_2 * Theta2';
+a_3 = sigmoid(z_3);
 
+y_vector = zeros(size(a_3));
+for i = 1:size(y_vector,1)
+    y_vector(i, y(i)) = 1;
+end
+J = 1/m *sum(sum((-y_vector .* log(a_3) - (1-y_vector).*(log(1 - a_3)))));
+J = J + (lambda/(2*m))*(sum(sum(Theta1(:,2:end).^2)) + sum(sum(Theta2(:,2:end).^2)));
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+% back propagation
+for t = 1:m
+    delta_3 = (a_3(t,:) - y_vector(t,:))';
+    delta_2 = (Theta2(:,2:end)' * delta_3) .* sigmoidGradient(z_2(t,:)');
+    Theta2_grad = Theta2_grad + delta_3 * a_2(t,:);
+    Theta1_grad = Theta1_grad + delta_2 * a_1(t,:);
+end
+Theta1_grad = (1 / m) * Theta1_grad;
+Theta1_grad(:, 2:end) = Theta1_grad(:, 2:end) + (lambda / m) * Theta1(:, 2:end);
+Theta2_grad = (1/m) * Theta2_grad;
+Theta2_grad(:, 2:end) = Theta2_grad(:, 2:end) + (lambda / m) * Theta2(:, 2:end);
 
 
 % -------------------------------------------------------------
